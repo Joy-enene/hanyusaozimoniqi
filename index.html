@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>韩娱嫂子模拟器 · NCT WISH 定向版</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap');
+
+:root {
+  --bg-deep: #0a0a14;
+  --bg-card: #12121f;
+  --bg-card2: #1a1a2e;
+  --accent-gold: #c9a96e;
+  --accent-pink: #e84393;
+  --accent-blue: #6c5ce7;
+  --accent-cyan: #00cec9;
+  --accent-red: #d63031;
+  --accent-green: #00b894;
+  --text-main: #e8e8f0;
+  --text-dim: #8888a8;
+  --text-bright: #ffffff;
+  --border-subtle: rgba(201,169,110,0.2);
+  --glow-gold: 0 0 20px rgba(201,169,110,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== COVER ===== */
+#cover-screen {
+  position: fixed; inset:0;
+  background: linear-gradient(135deg, #0a0a14 0%, #1a0a2e 50%, #0a1428 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.8s, visibility 0.8s;
+  overflow-y: auto; padding: 20px;
+}
+#cover-screen.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+
+.cover-img-wrap {
+  width: 90vw; max-width: 800px;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 8px 60px rgba(108,92,231,0.2), var(--glow-gold);
+  margin-bottom: 28px;
+}
+.cover-img-wrap img { width:100%; display:block; }
+
+.cover-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(22px, 5vw, 40px);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-gold), #f0d090, var(--accent-gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-align: center; margin-bottom: 6px; letter-spacing: 4px;
+}
+.cover-sub {
+  font-size: clamp(11px, 2.5vw, 15px);
+  color: var(--text-dim); text-align: center;
+  margin-bottom: 36px; letter-spacing: 2px;
+}
+
+.btn-start {
+  padding: 15px 55px;
+  background: linear-gradient(135deg, var(--accent-gold), #dab88a);
+  color: #0a0a14; font-size: 17px; font-weight: 700;
+  border: none; border-radius: 50px; cursor: pointer;
+  letter-spacing: 6px; transition: all 0.3s;
+  box-shadow: 0 4px 30px rgba(201,169,110,0.4);
+}
+.btn-start:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 40px rgba(201,169,110,0.6); }
+
+.cover-disclaimer {
+  max-width: 600px; margin-top: 28px;
+  font-size: 11px; color: var(--text-dim);
+  text-align: center; opacity: 0.7; line-height: 1.6;
+}
+
+/* ===== CREATE ===== */
+#create-screen {
+  display: none; min-height: 100vh; padding: 16px;
+  background: linear-gradient(180deg, var(--bg-deep), #0e0e1e);
+}
+#create-screen.show { display: block; }
+.create-container { max-width: 720px; margin: 0 auto; padding-top: 16px; }
+.create-header { text-align: center; margin-bottom: 28px; }
+.create-header h2 {
+  font-family: 'Noto Serif SC', serif; font-size: 26px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-gold), #f0d090);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.create-header p { color: var(--text-dim); font-size: 13px; }
+
+.form-section {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 20px; margin-bottom: 16px;
+}
+.form-section h3 {
+  font-size: 15px; font-weight: 700; color: var(--accent-gold);
+  margin-bottom: 14px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.form-row { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.form-group { flex: 1; min-width: 180px; }
+.form-group label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
+.form-group input, .form-group select {
+  width: 100%; padding: 9px 12px;
+  background: var(--bg-card2); border: 1px solid var(--border-subtle);
+  border-radius: 8px; color: var(--text-main); font-size: 14px;
+  font-family: inherit; outline: none; transition: border 0.3s;
+}
+.form-group input:focus { border-color: var(--accent-gold); }
+
+.identity-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px;
+}
+.identity-card {
+  background: var(--bg-card2); border: 1px solid var(--border-subtle);
+  border-radius: 10px; padding: 12px; cursor: pointer; transition: all 0.3s;
+}
+.identity-card:hover { border-color: var(--accent-gold); }
+.identity-card.selected { border-color: var(--accent-gold); background: rgba(201,169,110,0.08); box-shadow: var(--glow-gold); }
+.identity-card .id-label { font-weight: 700; font-size: 13px; color: var(--accent-gold); margin-bottom: 3px; }
+.identity-card .id-desc { font-size: 11px; color: var(--text-dim); line-height: 1.6; }
+
+.member-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px;
+}
+.member-card {
+  background: var(--bg-card2); border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 14px; cursor: pointer;
+  transition: all 0.3s; text-align: center; position: relative; overflow: hidden;
+}
+.member-card:hover { border-color: var(--accent-pink); transform: translateY(-2px); }
+.member-card.selected { border-color: var(--accent-pink); background: rgba(232,67,147,0.08); box-shadow: 0 0 20px rgba(232,67,147,0.3); }
+.member-card .m-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  object-fit: cover; margin: 0 auto 8px; display: block;
+  border: 2px solid var(--border-subtle); transition: border 0.3s;
+}
+.member-card.selected .m-avatar { border-color: var(--accent-pink); }
+.member-card .m-name { font-size: 14px; font-weight: 700; color: var(--text-bright); margin-bottom: 2px; }
+.member-card .m-tags { font-size: 10px; color: var(--accent-pink); margin-bottom: 4px; }
+.member-card .m-desc { font-size: 10px; color: var(--text-dim); line-height: 1.5; }
+
+.radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.radio-item {
+  padding: 9px 18px; background: var(--bg-card2);
+  border: 1px solid var(--border-subtle); border-radius: 20px;
+  cursor: pointer; font-size: 12px; transition: all 0.3s;
+}
+.radio-item:hover { border-color: var(--accent-gold); }
+.radio-item.selected { border-color: var(--accent-gold); background: rgba(201,169,110,0.1); color: var(--accent-gold); }
+
+.btn-confirm {
+  display: block; width: 100%; max-width: 360px; margin: 24px auto;
+  padding: 14px; background: linear-gradient(135deg, var(--accent-pink), var(--accent-blue));
+  color: #fff; font-size: 17px; font-weight: 700;
+  border: none; border-radius: 50px; cursor: pointer;
+  letter-spacing: 4px; transition: all 0.3s;
+  box-shadow: 0 4px 30px rgba(232,67,147,0.3);
+}
+.btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(232,67,147,0.5); }
+.btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ===== GAME ===== */
+#game-screen { display: none; min-height: 100vh; background: var(--bg-deep); flex-direction: column; }
+#game-screen.show { display: flex; }
+
+.stats-bar {
+  background: var(--bg-card); border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 6px 14px;
+  align-items: center; font-size: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.stat-item { display: flex; align-items: center; gap: 3px; }
+.stat-label { color: var(--text-dim); }
+.stat-value { font-weight: 700; }
+.stat-value.love { color: var(--accent-pink); }
+.stat-value.pop { color: var(--accent-cyan); }
+.stat-value.mood { color: var(--accent-gold); }
+.stat-value.money { color: var(--accent-green); }
+.stat-value.secret { color: var(--accent-blue); }
+.stat-value.alert { color: var(--accent-red); }
+.stat-value.stress { color: #fdcb6e; }
+.scene-info {
+  width: 100%; display: flex; gap: 14px; flex-wrap: wrap;
+  padding-top: 5px; border-top: 1px solid var(--border-subtle); margin-top: 3px;
+}
+.scene-info span { font-size: 11px; }
+.scene-info .si-label { color: var(--text-dim); }
+.scene-info .si-val { color: var(--accent-gold); font-weight: 500; }
+
+.game-body { flex: 1; max-width: 780px; width: 100%; margin: 0 auto; padding: 16px 14px 80px; }
+
+/* Char Card */
+.char-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: 12px; margin-bottom: 20px; overflow: hidden;
+}
+.char-card-header {
+  background: linear-gradient(135deg, rgba(232,67,147,0.12), rgba(108,92,231,0.12));
+  padding: 18px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+}
+.char-avatar {
+  width: 90px; height: 90px; border-radius: 12px; object-fit: cover;
+  border: 2px solid var(--accent-pink); box-shadow: 0 0 20px rgba(232,67,147,0.3);
+}
+.char-info h3 { font-size: 20px; font-weight: 700; color: var(--text-bright); margin-bottom: 3px; }
+.char-info .char-tags { font-size: 11px; color: var(--accent-pink); margin-bottom: 6px; }
+.char-info .char-stage {
+  font-size: 12px; color: var(--accent-gold); background: rgba(201,169,110,0.1);
+  display: inline-block; padding: 2px 10px; border-radius: 16px;
+}
+.char-card-body { padding: 18px; }
+.char-section { margin-bottom: 14px; }
+.char-section h4 { font-size: 12px; color: var(--accent-gold); margin-bottom: 6px; font-weight: 500; }
+.char-section p { font-size: 12px; color: var(--text-dim); line-height: 1.8; }
+.char-flags { display: flex; flex-wrap: wrap; gap: 6px; }
+.char-flag {
+  font-size: 10px; padding: 3px 8px; border-radius: 10px;
+  background: rgba(214,48,49,0.1); color: var(--accent-red);
+  border: 1px solid rgba(214,48,49,0.2);
+}
+.char-expand-btn {
+  width: 100%; padding: 8px; background: none;
+  border: 1px dashed var(--border-subtle); border-radius: 8px;
+  color: var(--text-dim); font-size: 11px; cursor: pointer;
+  transition: all 0.3s; margin-top: 6px; font-family: inherit;
+}
+.char-expand-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+.char-expand-content { display: none; padding-top: 10px; }
+.char-expand-content.show { display: block; }
+
+/* Scene Image */
+.scene-image-wrap {
+  width: 100%; border-radius: 12px; overflow: hidden;
+  margin-bottom: 16px; position: relative;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+}
+.scene-image-wrap img {
+  width: 100%; display: block;
+  min-height: 180px; object-fit: cover;
+  background: var(--bg-card2);
+}
+.scene-image-wrap .scene-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 8px 14px;
+  background: linear-gradient(transparent, rgba(10,10,20,0.85));
+  font-size: 11px; color: var(--text-dim);
+}
+
+/* Narrative */
+.narrative-box {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 22px; margin-bottom: 16px;
+  line-height: 2; font-size: 14px; min-height: 80px;
+  white-space: pre-wrap;
+}
+.narrative-box .n-dialogue {
+  color: var(--accent-pink); display: block; margin: 10px 0;
+  padding-left: 14px; border-left: 3px solid var(--accent-pink);
+}
+.narrative-box .n-thought { color: var(--text-dim); font-size: 12px; display: block; margin: 6px 0; }
+
+.loading-indicator { text-align: center; padding: 40px 20px; color: var(--text-dim); }
+.loading-dots::after { content: ''; animation: dots 1.5s infinite; }
+@keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+
+/* Choices */
+.choices-box {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 18px; margin-bottom: 16px;
+}
+.choices-title { font-size: 13px; font-weight: 700; color: var(--accent-gold); margin-bottom: 12px; }
+.choice-list { display: flex; flex-direction: column; gap: 8px; }
+.choice-btn {
+  width: 100%; padding: 12px 16px; background: var(--bg-card2);
+  border: 1px solid var(--border-subtle); border-radius: 10px;
+  color: var(--text-main); font-size: 13px; cursor: pointer;
+  text-align: left; transition: all 0.3s; font-family: inherit; line-height: 1.6;
+}
+.choice-btn:hover { border-color: var(--accent-gold); background: rgba(201,169,110,0.05); transform: translateX(4px); }
+.choice-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.choice-btn .choice-key {
+  display: inline-block; width: 26px; height: 26px; line-height: 26px;
+  text-align: center; background: rgba(201,169,110,0.15);
+  color: var(--accent-gold); border-radius: 6px;
+  font-weight: 700; font-size: 12px; margin-right: 8px;
+}
+.choice-btn.custom-choice { border-style: dashed; color: var(--text-dim); }
+.choice-btn.custom-choice:hover { color: var(--accent-gold); }
+
+.custom-input-wrap { display: none; margin-top: 10px; }
+.custom-input-wrap.show { display: flex; gap: 8px; }
+.custom-input-wrap input {
+  flex: 1; padding: 11px 14px; background: var(--bg-card2);
+  border: 1px solid var(--border-subtle); border-radius: 10px;
+  color: var(--text-main); font-size: 13px; font-family: inherit; outline: none;
+}
+.custom-input-wrap input:focus { border-color: var(--accent-gold); }
+.custom-input-wrap button {
+  padding: 11px 18px; background: var(--accent-gold); color: var(--bg-deep);
+  border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+
+.error-box {
+  background: rgba(214,48,49,0.1); border: 1px solid rgba(214,48,49,0.3);
+  border-radius: 10px; padding: 14px; margin-bottom: 16px;
+  color: var(--accent-red); font-size: 13px;
+}
+
+/* Chat Bubbles */
+.chat-container {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: 12px; padding: 16px; margin-bottom: 16px;
+}
+.chat-header {
+  font-size: 13px; font-weight: 700; color: var(--accent-gold);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.chat-msg {
+  display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;
+}
+.chat-avatar-small {
+  width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+  flex-shrink: 0; border: 1px solid var(--border-subtle);
+}
+.chat-bubble {
+  background: var(--bg-card2); border-radius: 12px; border-top-left-radius: 4px;
+  padding: 10px 14px; font-size: 13px; line-height: 1.6; max-width: 80%;
+}
+.chat-bubble .chat-name { font-size: 11px; color: var(--accent-pink); margin-bottom: 4px; font-weight: 500; }
+.chat-bubble.self {
+  background: rgba(108,92,231,0.15); border-radius: 12px; border-top-right-radius: 4px;
+  margin-left: auto;
+}
+.chat-bubble.self .chat-name { color: var(--accent-cyan); }
+
+/* Particles */
+.particles { position: fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.particle {
+  position: absolute; width: 2px; height: 2px;
+  background: var(--accent-gold); border-radius: 50%;
+  opacity: 0; animation: float-up 8s infinite;
+}
+@keyframes float-up {
+  0%{opacity:0;transform:translateY(100vh) scale(0)}
+  10%{opacity:0.6} 90%{opacity:0.1}
+  100%{opacity:0;transform:translateY(-10vh) scale(1)}
+}
+
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-card2); border: 1px solid var(--accent-gold);
+  border-radius: 10px; padding: 10px 24px; font-size: 13px;
+  color: var(--accent-gold); z-index: 9999;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--bg-card2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+<div class="toast" id="toast"></div>
+
+<!-- COVER -->
+<div id="cover-screen">
+  <div class="cover-img-wrap">
+    <img src="imgs/260527_00_生图/game_cover.jpg" alt="游戏封面">
+  </div>
+  <div class="cover-title">韩娱嫂子模拟器</div>
+  <div class="cover-sub">NCT WISH 成员定向版 · 平行世界虚构创作</div>
+  <button class="btn-start" onclick="showCreate()">开始游戏</button>
+  <div class="cover-disclaimer">
+    ⚠️ 本游戏为同人向平行世界虚构创作，所有剧情、感情线、人物行为均属虚构，不代表现实艺人本人经历、真实私生活或真实性格。所有亲密关系仅发生在成年角色之间。
+  </div>
+</div>
+
+<!-- CREATE -->
+<div id="create-screen">
+  <div class="create-container">
+    <div class="create-header">
+      <h2>✨ 角色创建 ✨</h2>
+      <p>在进入他的世界之前，先定义你自己</p>
+    </div>
+
+    <div class="form-section">
+      <h3>🎭 关于你</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>姓名</label>
+          <input type="text" id="player-name" placeholder="输入你的名字">
+        </div>
+        <div class="form-group">
+          <label>年龄</label>
+          <input type="number" id="player-age" placeholder="20" min="18" max="30">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>🌍 身份起源</h3>
+      <div class="identity-grid" id="identity-grid">
+        <div class="identity-card" data-id="A" onclick="selectIdentity(this)">
+          <div class="id-label">A. 留学生</div>
+          <div class="id-desc">在首尔读书，与娱乐圈无关。生活轨迹自然，但经济、签证、学业都是压力。</div>
+        </div>
+        <div class="identity-card" data-id="B" onclick="selectIdentity(this)">
+          <div class="id-label">B. 花园丝 / 海外粉丝</div>
+          <div class="id-desc">默默关注NCT WISH很久。了解他的舞台与习惯，但身份极其敏感。</div>
+        </div>
+        <div class="identity-card" data-id="C" onclick="selectIdentity(this)">
+          <div class="id-label">C. 娱乐公司实习生</div>
+          <div class="id-desc">在经纪公司实习，接触机会多，但公司明令禁止与艺人私下发展关系。</div>
+        </div>
+        <div class="identity-card" data-id="D" onclick="selectIdentity(this)">
+          <div class="id-label">D. 音乐节目工作人员</div>
+          <div class="id-desc">在打歌节目工作，频繁遇见男主，但项目结束后易断联。</div>
+        </div>
+        <div class="identity-card" data-id="E" onclick="selectIdentity(this)">
+          <div class="id-label">E. 妆造师 / 发型助理</div>
+          <div class="id-desc">参与舞台妆造、杂志拍摄。近距离接触，但暧昧即失职。</div>
+        </div>
+        <div class="identity-card" data-id="F" onclick="selectIdentity(this)">
+          <div class="id-label">F. 翻译 / 海外商务助理</div>
+          <div class="id-desc">负责采访翻译、巡演随行。进入男主工作半径，但被多方审视。</div>
+        </div>
+        <div class="identity-card" data-id="G" onclick="selectIdentity(this)">
+          <div class="id-label">G. 咖啡店 / 便利店兼职生</div>
+          <div class="id-desc">普通人在首尔奔波。初遇自然，但阶层落差明显。</div>
+        </div>
+        <div class="identity-card" data-id="H" onclick="selectIdentity(this)">
+          <div class="id-label">H. 自定义身份</div>
+          <div class="id-desc">由你自行设定初遇契机，DM将合理嵌入韩娱背景。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>💕 选择男主</h3>
+      <div class="member-grid" id="member-grid">
+        <div class="member-card" data-member="sion" onclick="selectMember(this)">
+          <img class="m-avatar" src="imgs/260527_09_生图/sion_portrait.jpg" alt="Sion">
+          <div class="m-name">吴是温 Sion</div>
+          <div class="m-tags">郁金香 · 狐兔双相 · 全能欧巴</div>
+        </div>
+        <div class="member-card" data-member="riku" onclick="selectMember(this)">
+          <img class="m-avatar" src="imgs/260527_09_生图/riku_portrait.jpg" alt="Riku">
+          <div class="m-name">前田陆 Riku</div>
+          <div class="m-tags">黑猫 · 易碎感 · 氛围感色情</div>
+        </div>
+        <div class="member-card" data-member="yushi" onclick="selectMember(this)">
+          <img class="m-avatar" src="imgs/260527_09_生图/yushi_portrait.jpg" alt="Yushi">
+          <div class="m-name">得能勇志 Yushi</div>
+          <div class="m-tags">处男感 · 外星人 · 隐性S</div>
+        </div>
+        <div class="member-card" data-member="jaehee" onclick="selectMember(this)">
+          <img class="m-avatar" src="imgs/260527_09_生图/jaehee_portrait.jpg" alt="Jaehee">
+          <div class="m-name">金栽熙 Jaehee</div>
+          <div class="m-tags">大狗狗 · 双子座 · 村干部</div>
+        </div>
+        <div class="member-card" data-member="ryo" onclick="selectMember(this)">
+          <img class="m-avatar" src="imgs/260527_09_生图/ryo_portrait.jpg" alt="Ryo">
+          <div class="m-name">广濑辽 Ryo</div>
+          <div class="m-tags">马尔济斯 · 小太阳 · 绝对安全感</div>
+        </div>
+        <div class="member-card" data-member="sakuya" onclick="selectMember(this)">
+          <img class="m-avatar" src="imgs/260527_09_生图/sakuya_portrait.jpg" alt="Sakuya">
+          <div class="m-name">藤永咲哉 Sakuya</div>
+          <div class="m-tags">萌脸狼 · 天蝎座 · 阴湿推拉</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>🌟 追星程度</h3>
+      <div class="radio-group" id="fan-level">
+        <div class="radio-item" data-val="1" onclick="selectRadio(this,'fan-level')">nct老粉</div>
+        <div class="radio-item" data-val="2" onclick="selectRadio(this,'fan-level')">普通韩娱瓜众</div>
+        <div class="radio-item" data-val="3" onclick="selectRadio(this,'fan-level')">纯路人</div>
+        <div class="radio-item" data-val="4" onclick="selectRadio(this,'fan-level')">脱粉后重逢</div>
+        <div class="radio-item" data-val="5" onclick="selectRadio(this,'fan-level')">唯粉</div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>🎬 剧情节奏</h3>
+      <div class="radio-group" id="pace">
+        <div class="radio-item" data-val="slow" onclick="selectRadio(this,'pace')">慢热现实向</div>
+        <div class="radio-item" data-val="normal" onclick="selectRadio(this,'pace')">标准韩剧向</div>
+        <div class="radio-item" data-val="pressure" onclick="selectRadio(this,'pace')">高压舆论向</div>
+        <div class="radio-item" data-val="healing" onclick="selectRadio(this,'pace')">日常治愈向</div>
+      </div>
+    </div>
+
+    <button class="btn-confirm" onclick="confirmCreate()">确 定</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game-screen">
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-label">好感</span> <span class="stat-value love" id="s-love">8</span></div>
+    <div class="stat-item"><span class="stat-label">人气</span> <span class="stat-value pop" id="s-pop">0</span></div>
+    <div class="stat-item"><span class="stat-label">心情</span> <span class="stat-value mood" id="s-mood">72</span></div>
+    <div class="stat-item"><span class="stat-label">金钱</span> <span class="stat-value money" id="s-money">2300</span></div>
+    <div class="stat-item"><span class="stat-label">保密度</span> <span class="stat-value secret" id="s-secret">100</span></div>
+    <div class="stat-item"><span class="stat-label">警觉度</span> <span class="stat-value alert" id="s-alert">18</span></div>
+    <div class="stat-item"><span class="stat-label">压力</span> <span class="stat-value stress" id="s-stress">67</span></div>
+    <div class="scene-info">
+      <span><span class="si-label">第</span><span class="si-val" id="s-week">1</span><span class="si-label">周</span></span>
+      <span><span class="si-label">场景：</span><span class="si-val" id="s-scene">—</span></span>
+      <span><span class="si-label">男主：</span><span class="si-val" id="s-member">—</span></span>
+      <span><span class="si-label">关系：</span><span class="si-val" id="s-stage">陌生人</span></span>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <!-- Character Card -->
+    <div class="char-card" id="char-card" style="display:none;">
+      <div class="char-card-header">
+        <img class="char-avatar" id="char-avatar" src="" alt="男主">
+        <div class="char-info">
+          <h3 id="char-name">—</h3>
+          <div class="char-tags" id="char-tags">—</div>
+          <span class="char-stage" id="char-stage">陌生人</span>
+        </div>
+      </div>
+      <div class="char-card-body">
+        <div class="char-section"><h4>公开人设</h4><p id="char-public">—</p></div>
+        <div class="char-section"><h4>私下性格</h4><p id="char-private">—</p></div>
+        <div class="char-section"><h4>恋爱雷区</h4><div class="char-flags" id="char-flags"></div></div>
+        <button class="char-expand-btn" onclick="toggleExpand('detail')">📂 档案详情</button>
+        <div class="char-expand-content" id="expand-detail"><p id="char-detail">—</p></div>
+        <button class="char-expand-btn" onclick="toggleExpand('observe')" style="margin-top:6px;">🔍 细节挖掘</button>
+        <div class="char-expand-content" id="expand-observe"><p id="char-observe">—</p></div>
+      </div>
+    </div>
+
+    <!-- Scene Image -->
+    <div class="scene-image-wrap" id="scene-image-wrap" style="display:none;">
+      <img id="scene-image" src="" alt="场景">
+      <div class="scene-label" id="scene-label"></div>
+    </div>
+
+    <!-- Narrative -->
+    <div class="narrative-box" id="narrative">
+      <div class="loading-indicator">等待剧情加载</div>
+    </div>
+
+    <div id="error-box" class="error-box" style="display:none;"></div>
+
+    <!-- Choices -->
+    <div class="choices-box" id="choices-box" style="display:none;">
+      <div class="choices-title">【可选行动】</div>
+      <div class="choice-list" id="choice-list"></div>
+      <div class="custom-input-wrap" id="custom-input">
+        <input type="text" id="custom-action" placeholder="输入你的行动……" onkeydown="if(event.key==='Enter')submitCustom()">
+        <button onclick="submitCustom()">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== State =====
+let playerData = { name:'', age:20, identity:'', member:'', fanLevel:'', pace:'' };
+let gameState = { love:8, pop:0, mood:72, money:2300, secret:100, alert:18, stress:67, week:1, scene:'', memberName:'', stage:'陌生人' };
+let sessionId = null;
+let isWaiting = false;
+
+const MEMBER_NAMES = {
+  sion:'吴是温（Sion）', riku:'前田陆（Riku）', yushi:'得能勇志（Yushi）',
+  jaehee:'金栽熙（Jaehee）', ryo:'广濑辽（Ryo）', sakuya:'藤永咲哉（Sakuya）'
+};
+
+const MEMBER_PORTRAITS = {
+  sion: 'imgs/260527_09_生图/sion_portrait.jpg',
+  riku: 'imgs/260527_09_生图/riku_portrait.jpg',
+  yushi: 'imgs/260527_09_生图/yushi_portrait.jpg',
+  jaehee: 'imgs/260527_09_生图/jaehee_portrait.jpg',
+  ryo: 'imgs/260527_09_生图/ryo_portrait.jpg',
+  sakuya: 'imgs/260527_09_生图/sakuya_portrait.jpg',
+};
+
+// ===== Particles =====
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<25;i++){
+    const p=document.createElement('div'); p.className='particle';
+    p.style.left=Math.random()*100+'%';
+    p.style.animationDelay=Math.random()*8+'s';
+    p.style.animationDuration=(6+Math.random()*6)+'s';
+    c.appendChild(p);
+  }
+})();
+
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function showCreate(){
+  document.getElementById('cover-screen').classList.add('hidden');
+  setTimeout(()=>document.getElementById('create-screen').classList.add('show'),400);
+}
+function showGame(){
+  document.getElementById('create-screen').classList.remove('show');
+  document.getElementById('game-screen').classList.add('show');
+}
+
+// ===== Selections =====
+function selectIdentity(el){
+  document.querySelectorAll('.identity-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected'); playerData.identity=el.dataset.id;
+}
+function selectMember(el){
+  document.querySelectorAll('.member-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected'); playerData.member=el.dataset.member;
+}
+function selectRadio(el,gid){
+  document.querySelectorAll('#'+gid+' .radio-item').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  playerData[gid==='fan-level'?'fanLevel':'pace']=el.dataset.val;
+}
+
+// ===== Confirm → Start =====
+async function confirmCreate(){
+  playerData.name=document.getElementById('player-name').value||'未命名';
+  playerData.age=document.getElementById('player-age').value||20;
+  if(!playerData.identity){showToast('请选择身份起源');return;}
+  if(!playerData.member){showToast('请选择攻略男主');return;}
+  if(!playerData.fanLevel){showToast('请选择追星程度');return;}
+  if(!playerData.pace){showToast('请选择剧情节奏');return;}
+
+  const moneyMap={A:1200,B:2300,C:2800,D:3200,E:3500,F:4000,G:800,H:2000};
+  gameState.memberName=MEMBER_NAMES[playerData.member];
+  gameState.money=moneyMap[playerData.identity]||2000;
+  updateStats();
+
+  // 设置角色卡
+  setupCharCard(playerData.member);
+
+  showGame();
+  setNarrative('<div class="loading-indicator"><span class="loading-dots">DM正在构思你的故事</span></div>');
+  hideChoices();
+
+  try{
+    const res=await fetch('/api/start',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ playerData, gameState })
+    });
+    const data=await res.json();
+    if(data.error){showError(data.error);return;}
+    sessionId=data.sessionId;
+    parseAndRender(data.reply, data.sceneImage, data.portraitImage);
+    showToast('✨ 游戏开始！');
+  }catch(err){
+    showError('无法连接DM服务器：'+err.message+'\n\n请确认后端已启动（node server.js）');
+  }
+}
+
+// ===== Char Card =====
+function setupCharCard(member){
+  const card=document.getElementById('char-card');
+  card.style.display='block';
+  document.getElementById('char-avatar').src=MEMBER_PORTRAITS[member]||'';
+  document.getElementById('char-name').textContent=MEMBER_NAMES[member]||'—';
+}
+
+// ===== Scene Image =====
+function setSceneImage(url, label){
+  const wrap=document.getElementById('scene-image-wrap');
+  const img=document.getElementById('scene-image');
+  const lbl=document.getElementById('scene-label');
+  if(url){
+    img.src=url;
+    lbl.textContent=label||'';
+    wrap.style.display='block';
+  } else {
+    wrap.style.display='none';
+  }
+}
+
+// ===== Choices =====
+async function makeChoice(key){
+  if(isWaiting)return;
+  await sendToDM('我选择'+key);
+}
+function toggleCustomInput(){
+  document.getElementById('custom-input').classList.toggle('show');
+  if(document.getElementById('custom-input').classList.contains('show'))
+    document.getElementById('custom-action').focus();
+}
+async function submitCustom(){
+  const input=document.getElementById('custom-action');
+  const v=input.value.trim();
+  if(!v)return;
+  input.value='';
+  document.getElementById('custom-input').classList.remove('show');
+  await sendToDM(v);
+}
+
+async function sendToDM(message){
+  if(isWaiting||!sessionId)return;
+  isWaiting=true; setChoicesDisabled(true);
+  setNarrative('<div class="loading-indicator"><span class="loading-dots">DM正在推演剧情</span></div>');
+  hideError();
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ sessionId, message })
+    });
+    const data=await res.json();
+    if(data.error){showError(data.error);return;}
+    parseAndRender(data.reply, data.sceneImage, data.portraitImage);
+  }catch(err){showError('网络错误：'+err.message);}
+  finally{isWaiting=false;setChoicesDisabled(false);}
+}
+
+// ===== Parse & Render =====
+function parseAndRender(reply, sceneImg, portraitImg){
+  // 属性
+  const sm=reply.match(/好感[度][：:]\s*(\d+).*?人气值[：:]\s*(\d+).*?心情值[：:]\s*(\d+).*?金钱[：:]\s*(\d+).*?保密度[：:]\s*(\d+).*?警觉度[：:]\s*(\d+).*?事业压力[：:]\s*(\d+)/s);
+  if(sm){
+    gameState.love=+sm[1];gameState.pop=+sm[2];gameState.mood=+sm[3];
+    gameState.money=+sm[4];gameState.secret=+sm[5];gameState.alert=+sm[6];gameState.stress=+sm[7];
+  }
+  const wm=reply.match(/第\s*(\d+)\s*周/);if(wm)gameState.week=+wm[1];
+  const scm=reply.match(/当前场景[：:]\s*(.+?)[\n\r]/);if(scm)gameState.scene=scm[1].trim();
+  const mm=reply.match(/当前男主[：:]\s*(.+?)[\n\r]/);if(mm)gameState.memberName=mm[1].trim();
+  const stm=reply.match(/关系阶段[：:]\s*(.+?)[\n\r]/);if(stm)gameState.stage=stm[1].trim();
+  updateStats();
+
+  // 角色卡更新
+  if(portraitImg) document.getElementById('char-avatar').src=portraitImg;
+  if(gameState.memberName) document.getElementById('char-name').textContent=gameState.memberName;
+  document.getElementById('char-stage').textContent=gameState.stage;
+
+  // 场景图
+  setSceneImage(sceneImg||null, gameState.scene);
+
+  // 剧情正文
+  let nar=reply;
+  nar=nar.replace(/═{3,}.*?═{3,}/gs,'');
+  nar=nar.replace(/好感[度][：:].*?事业压力[：:]\s*\d+/gs,'');
+  nar=nar.replace(/第\d+周.*?关系阶段[：:].+[\n\r]?/g,'');
+  nar=nar.replace(/当前男主[：:].+[\n\r]?/g,'');
+  nar=nar.replace(/当前场景[：:].+[\n\r]?/g,'');
+  nar=nar.replace(/\[IMG_PROMPT:[\s\S]*?\]/g,'');
+  nar=nar.replace(/\[AVATAR_PROMPT:[\s\S]*?\]/g,'');
+
+  // 选项
+  const choices=[];
+  const cr=/([A-D])[.、．]\s*(.+)/g;let cm;
+  while((cm=cr.exec(reply))!==null) choices.push({key:cm[1],text:cm[2].trim()});
+  nar=nar.replace(/[A-D][.、．].+/g,'');
+  nar=nar.replace(/【可选行动】/g,'');
+  nar=nar.trim();
+
+  let html=nar
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>')
+    .replace(/「([^」]+)」/g,'<span class="n-dialogue">「$1」</span>')
+    .replace(/（([^）]+)）/g,'<span class="n-thought">（$1）</span>');
+  setNarrative('<p>'+html+'</p>');
+
+  // 渲染选项
+  if(choices.length>0){
+    const box=document.getElementById('choices-box');
+    const list=document.getElementById('choice-list');
+    box.style.display='block';list.innerHTML='';
+    choices.forEach(ch=>{
+      const btn=document.createElement('button');
+      btn.className='choice-btn'+(ch.key==='D'?' custom-choice':'');
+      btn.innerHTML='<span class="choice-key">'+ch.key+'</span> '+ch.text;
+      btn.onclick=ch.key==='D'?toggleCustomInput:()=>makeChoice(ch.key);
+      list.appendChild(btn);
+    });
+  }
+
+  document.getElementById('narrative').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ===== UI helpers =====
+function setNarrative(h){document.getElementById('narrative').innerHTML=h;}
+function setChoicesDisabled(d){document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=d);}
+function hideChoices(){document.getElementById('choices-box').style.display='none';}
+function showError(m){const b=document.getElementById('error-box');b.textContent='⚠️ '+m;b.style.display='block';}
+function hideError(){document.getElementById('error-box').style.display='none';}
+function updateStats(){
+  document.getElementById('s-love').textContent=gameState.love;
+  document.getElementById('s-pop').textContent=gameState.pop;
+  document.getElementById('s-mood').textContent=gameState.mood;
+  document.getElementById('s-money').textContent=gameState.money;
+  document.getElementById('s-secret').textContent=gameState.secret;
+  document.getElementById('s-alert').textContent=gameState.alert;
+  document.getElementById('s-stress').textContent=gameState.stress;
+  document.getElementById('s-week').textContent=gameState.week;
+  document.getElementById('s-scene').textContent=gameState.scene||'—';
+  document.getElementById('s-member').textContent=gameState.memberName||'—';
+  document.getElementById('s-stage').textContent=gameState.stage;
+}
+function toggleExpand(id){document.getElementById('expand-'+id).classList.toggle('show');}
+</script>
+</body>
+</html>
